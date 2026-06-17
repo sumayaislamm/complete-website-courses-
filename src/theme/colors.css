@@ -1,0 +1,13 @@
+:root {
+    --bg: #111827;
+    --card: #1f2937;
+    --text: #e5e7eb;
+    --heading: #7dd3fc;
+    --code: #c084fc;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --error: #f87171;
+    --link: #38bdf8;
+}
+
+/* className="bg-card */
