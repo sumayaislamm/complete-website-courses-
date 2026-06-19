@@ -5,7 +5,16 @@ const Navbar = () => {
         <>
             <nav class="navbar navbar-dark bg-card fixed-top">
                 <div class="container-fluid">
-                    <a class="navbar-brand" href="#">Sumu's All Courses</a>
+                    <a class="navbar-brand" href="#"
+                        style={{
+                            background: "linear-gradient(90deg, #4f46e5, #06b6d4)",
+                            WebkitBackgroundClip: "text",
+                            WebkitTextFillColor: "transparent",
+                        }}
+                    > <img src="/logo.png" alt="Profile" width="40" height="40"  />
+                        <span > Ilmify</span>
+                    </a>
+
                     <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDarkNavbar" aria-controls="offcanvasDarkNavbar" aria-label="Toggle navigation">
                         <span class="navbar-toggler-icon"></span>
                     </button>
