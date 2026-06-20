@@ -756,7 +756,7 @@ SELECT level, name FROM org_chart ORDER BY level, name;` }
       },
       {
         title: "Window Functions — The Real Power Move",
-        analogy: { emoji: "🪟", title: "Like looking through a sliding window", text: "Regular GROUP BY collapses all rows into one. Window functions add a calculation to each row while KEEPING all the rows!\n\nImagine ranking every student in the class — you want to see all students AND their rank. GROUP BY would only give you one row per rank!" },
+        analogy: { emoji: "🪟", title: "Like looking through a sliding window", text: "Regular GROUP BY collapses all rows into one. Window functions add a calculation to each row while KEEPING all the rows!\n\nImagine ranking every student in the className — you want to see all students AND their rank. GROUP BY would only give you one row per rank!" },
         code: { label: "-- Window functions (OVER clause)", content: `-- ROW_NUMBER — rank each row
 SELECT
     name, age, grade,
