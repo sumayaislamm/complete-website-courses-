@@ -20,7 +20,11 @@ const FirstNavbar = () => {
                 </button>
                 <div className="offcanvas offcanvas-end text-bg-dark" table-index="-1" id="offcanvasDarkNavbar" aria-labelledby="offcanvasDarkNavbarLabel">
                     <div className="offcanvas-header">
-                        <h5 className="offcanvas-title" id="offcanvasDarkNavbarLabel">Sumu's All Courses</h5>
+                        <h5 className="offcanvas-title" id="offcanvasDarkNavbarLabel" style={{
+                            background: "linear-gradient(90deg, #4f46e5, #06b6d4)",
+                            WebkitBackgroundClip: "text",
+                            WebkitTextFillColor: "transparent",
+                        }}>Sumu's All Courses</h5>
                         <button type="button" className="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                     </div>
                     <div className="offcanvas-body">

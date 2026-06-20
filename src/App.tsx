@@ -7,11 +7,11 @@ function App() {
 
   return (
     <>
-    <FirstNavbar></FirstNavbar>
-    <SecondNavbar></SecondNavbar>
-    <Home></Home>
+      <FirstNavbar></FirstNavbar>
+      <SecondNavbar></SecondNavbar>
+      <Home></Home>
     </>
-    
+
   )
 }
 
