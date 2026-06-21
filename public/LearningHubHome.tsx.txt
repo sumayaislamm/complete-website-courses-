@@ -1,0 +1,1083 @@
+import React, { useEffect, useRef, useState } from "react";
+
+/**
+ * Learning Hub — Home Page (Full Catalog Edition)
+ * Stack: TypeScript + React + Bootstrap 5
+ *
+ * Setup — add to index.html <head>, alongside Bootstrap:
+ *   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+ *   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;1,500&family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+ *
+ * <LearningHubHome /> is a self-contained default export.
+ * No routing, no auth — Login/Sign up buttons and course CTAs are visual only.
+ */
+
+// ─── TYPES ─────────────────────────────────────────────────────────────────
+
+type CourseStatus = "available" | "coming-soon";
+type Rung = "Foundations" | "Build" | "Specialize" | "Master";
+
+interface Course {
+  id: string;
+  emoji: string;
+  name: string;
+  plain: string; // one-line, zero-jargon explanation — the "5yo" layer
+  chapters: number;
+  hours: number;
+  status: CourseStatus;
+  rung: Rung;
+}
+
+interface Category {
+  id: string;
+  name: string;
+  plain: string;
+  accent: string;
+  accentSoft: string;
+  courses: Course[];
+}
+
+interface FaqItem {
+  q: string;
+  a: string;
+}
+
+// ─── DATA ──────────────────────────────────────────────────────────────────
+// "plain" fields are written so a curious kid and a working engineer
+// both get something true and useful out of the same sentence.
+
+const CATEGORIES: Category[] = [
+  {
+    id: "languages",
+    name: "Languages",
+    plain: "The words computers actually understand",
+    accent: "#f5c842",
+    accentSoft: "rgba(245,200,66,0.14)",
+    courses: [
+      { id: "javascript", emoji: "🟨", name: "JavaScript", plain: "Makes websites do things, not just sit there", chapters: 6, hours: 5, status: "available", rung: "Foundations" },
+      { id: "python", emoji: "🐍", name: "Python", plain: "Reads almost like English — great first language", chapters: 0, hours: 0, status: "coming-soon", rung: "Foundations" },
+      { id: "typescript", emoji: "🔷", name: "TypeScript", plain: "JavaScript that checks your work before you run it", chapters: 0, hours: 0, status: "coming-soon", rung: "Build" },
+      { id: "java", emoji: "☕", name: "Java", plain: "Runs the same code on almost any computer", chapters: 0, hours: 0, status: "coming-soon", rung: "Build" },
+      { id: "go", emoji: "🐹", name: "Go", plain: "Built by Google for things that need to be fast and simple", chapters: 0, hours: 0, status: "coming-soon", rung: "Specialize" },
+      { id: "rust", emoji: "🦀", name: "Rust", plain: "Fast like C, but stops you from crashing the program", chapters: 0, hours: 0, status: "coming-soon", rung: "Specialize" },
+      { id: "cpp", emoji: "⚙️", name: "C++", plain: "Close to the hardware — games and engines run on this", chapters: 0, hours: 0, status: "coming-soon", rung: "Specialize" },
+      { id: "csharp", emoji: "🎯", name: "C#", plain: "Microsoft's language for apps, games, and tools", chapters: 0, hours: 0, status: "coming-soon", rung: "Build" },
+    ],
+  },
+  {
+    id: "frontend",
+    name: "Frontend",
+    plain: "Everything you see and click in a browser",
+    accent: "#63b3ed",
+    accentSoft: "rgba(99,179,237,0.14)",
+    courses: [
+      { id: "html", emoji: "📄", name: "HTML", plain: "The skeleton of every web page that ever existed", chapters: 0, hours: 0, status: "coming-soon", rung: "Foundations" },
+      { id: "css", emoji: "🎨", name: "CSS", plain: "Tells the skeleton what color shirt to wear", chapters: 0, hours: 0, status: "coming-soon", rung: "Foundations" },
+      { id: "react", emoji: "⚛️", name: "React", plain: "Build a UI once, reuse it everywhere", chapters: 6, hours: 6, status: "available", rung: "Build" },
+      { id: "vue", emoji: "🟩", name: "Vue", plain: "React's friendlier cousin — gentler learning curve", chapters: 0, hours: 0, status: "coming-soon", rung: "Build" },
+      { id: "nextjs", emoji: "▲", name: "Next.js", plain: "React, plus the server parts it was missing", chapters: 0, hours: 0, status: "coming-soon", rung: "Specialize" },
+      { id: "tailwind", emoji: "🌊", name: "Tailwind CSS", plain: "Style things by typing tiny labels instead of writing CSS files", chapters: 0, hours: 0, status: "coming-soon", rung: "Build" },
+    ],
+  },
+  {
+    id: "backend",
+    name: "Backend",
+    plain: "The part of an app users never see, but always rely on",
+    accent: "#f97316",
+    accentSoft: "rgba(249,115,22,0.14)",
+    courses: [
+      { id: "nodejs", emoji: "🟢", name: "Node.js", plain: "Lets JavaScript run on a server, not just in a browser", chapters: 0, hours: 0, status: "coming-soon", rung: "Build" },
+      { id: "express", emoji: "🚂", name: "Express", plain: "The shortest path from 'I have an idea' to 'I have an API'", chapters: 0, hours: 0, status: "coming-soon", rung: "Build" },
+      { id: "django", emoji: "🎸", name: "Django", plain: "Python's batteries-included way to build a full website fast", chapters: 0, hours: 0, status: "coming-soon", rung: "Specialize" },
+      { id: "graphql", emoji: "🔗", name: "GraphQL", plain: "Ask for exactly the data you need, nothing extra", chapters: 0, hours: 0, status: "coming-soon", rung: "Specialize" },
+      { id: "rest-apis", emoji: "📡", name: "REST APIs", plain: "The common language apps use to talk to each other", chapters: 0, hours: 0, status: "coming-soon", rung: "Foundations" },
+    ],
+  },
+  {
+    id: "databases",
+    name: "Databases",
+    plain: "Where information lives when the app is turned off",
+    accent: "#22c55e",
+    accentSoft: "rgba(34,197,94,0.14)",
+    courses: [
+      { id: "postgresql", emoji: "🐘", name: "PostgreSQL", plain: "A giant, super-organized filing cabinet that never gets messy", chapters: 15, hours: 9, status: "available", rung: "Build" },
+      { id: "mysql", emoji: "🐬", name: "MySQL", plain: "Postgres' more popular, slightly simpler cousin", chapters: 0, hours: 0, status: "coming-soon", rung: "Build" },
+      { id: "mongodb", emoji: "🍃", name: "MongoDB", plain: "Stores data as flexible documents instead of strict tables", chapters: 0, hours: 0, status: "coming-soon", rung: "Specialize" },
+      { id: "redis", emoji: "⚡", name: "Redis", plain: "A sticky-note board your app checks before doing slow work", chapters: 0, hours: 0, status: "coming-soon", rung: "Specialize" },
+      { id: "sql-fundamentals", emoji: "🧮", name: "SQL Fundamentals", plain: "The questions every database, big or small, understands", chapters: 0, hours: 0, status: "coming-soon", rung: "Foundations" },
+    ],
+  },
+  {
+    id: "mobile",
+    name: "Mobile",
+    plain: "Apps that live on the phone in your pocket",
+    accent: "#a78bfa",
+    accentSoft: "rgba(167,139,250,0.14)",
+    courses: [
+      { id: "react-native", emoji: "📱", name: "React Native", plain: "Write it once in React, run it on iPhone and Android", chapters: 0, hours: 0, status: "coming-soon", rung: "Specialize" },
+      { id: "swift", emoji: "🦅", name: "Swift", plain: "Apple's language for building iPhone and iPad apps", chapters: 0, hours: 0, status: "coming-soon", rung: "Specialize" },
+      { id: "kotlin", emoji: "🤖", name: "Kotlin", plain: "Google's preferred language for Android apps", chapters: 0, hours: 0, status: "coming-soon", rung: "Specialize" },
+      { id: "flutter", emoji: "🦋", name: "Flutter", plain: "One codebase, native-feeling apps on every device", chapters: 0, hours: 0, status: "coming-soon", rung: "Specialize" },
+    ],
+  },
+  {
+    id: "devops",
+    name: "DevOps & Cloud",
+    plain: "Getting your app from your laptop onto the internet, safely",
+    accent: "#06b6d4",
+    accentSoft: "rgba(6,182,212,0.14)",
+    courses: [
+      { id: "git", emoji: "🌳", name: "Git & GitHub", plain: "Undo button for code, shared with your whole team", chapters: 0, hours: 0, status: "coming-soon", rung: "Foundations" },
+      { id: "docker", emoji: "🐳", name: "Docker", plain: "Packs your app in a box that runs the same everywhere", chapters: 0, hours: 0, status: "coming-soon", rung: "Build" },
+      { id: "kubernetes", emoji: "☸️", name: "Kubernetes", plain: "Hires a robot manager for thousands of those boxes", chapters: 0, hours: 0, status: "coming-soon", rung: "Master" },
+      { id: "aws", emoji: "☁️", name: "AWS", plain: "Rent Amazon's computers instead of buying your own", chapters: 0, hours: 0, status: "coming-soon", rung: "Specialize" },
+      { id: "linux", emoji: "🐧", name: "Linux & the Terminal", plain: "Talking to your computer by typing instead of clicking", chapters: 0, hours: 0, status: "coming-soon", rung: "Foundations" },
+      { id: "ci-cd", emoji: "🔁", name: "CI/CD", plain: "Robots that test and ship your code so you don't have to", chapters: 0, hours: 0, status: "coming-soon", rung: "Master" },
+    ],
+  },
+  {
+    id: "cs-fundamentals",
+    name: "Computer Science",
+    plain: "The ideas behind the code, not tied to any one language",
+    accent: "#ec4899",
+    accentSoft: "rgba(236,72,153,0.14)",
+    courses: [
+      { id: "dsa", emoji: "🧠", name: "Data Structures & Algorithms", plain: "The most efficient ways to store and search for things", chapters: 0, hours: 0, status: "coming-soon", rung: "Build" },
+      { id: "system-design", emoji: "🏗️", name: "System Design", plain: "How apps stay fast and online with a million users at once", chapters: 0, hours: 0, status: "coming-soon", rung: "Master" },
+      { id: "oop", emoji: "🧱", name: "Object-Oriented Programming", plain: "Organizing code like real-world objects with jobs to do", chapters: 0, hours: 0, status: "coming-soon", rung: "Foundations" },
+      { id: "networking", emoji: "🌐", name: "Networking Basics", plain: "How your message actually gets from you to a website", chapters: 0, hours: 0, status: "coming-soon", rung: "Build" },
+    ],
+  },
+];
+
+const RUNGS: { key: Rung; title: string; plain: string }[] = [
+  { key: "Foundations", title: "Foundations", plain: "You've never coded before. Start here, no exceptions." },
+  { key: "Build", title: "Build", plain: "You know the basics. Now make real, working things." },
+  { key: "Specialize", title: "Specialize", plain: "Pick a direction — web, mobile, data — and go deep." },
+  { key: "Master", title: "Master", plain: "Production patterns. The stuff senior engineers actually use." },
+];
+
+const STEPS: { num: string; title: string; desc: string }[] = [
+  { num: "01", title: "Pick a course", desc: "Every category has a plain-English line under it. If you understand that sentence, you're ready to start." },
+  { num: "02", title: "Read, don't skim", desc: "Every idea gets a real analogy before any code — built so a beginner and a pro both get something out of the same page." },
+  { num: "03", title: "Quiz yourself", desc: "Each chapter ends with a short check. Wrong answers come with the reasoning, not just a red X." },
+];
+
+const PRINCIPLES: { icon: string; title: string; desc: string }[] = [
+  { icon: "🧒", title: "Explained twice", desc: "Once in plain words a curious kid could follow, then once in the precise terms a working engineer expects. Never just one or the other." },
+  { icon: "🧩", title: "Analogy before syntax", desc: "Closures, joins, hooks, containers — every abstract idea gets a real-world comparison before a single line of code." },
+  { icon: "📐", title: "Same shape, every course", desc: "Chapters, levels, quizzes, code blocks. Learn the format once, reuse it across every language and tool on this shelf." },
+  { icon: "🪜", title: "Honest leveling", desc: "Foundations means zero assumptions. Master means production patterns. Nothing in between gets quietly skipped." },
+];
+
+const FAQS: FaqItem[] = [
+  { q: "Do I need to know anything to start?", a: "No. Every Foundations-level course assumes nothing — not even what a variable is. If a category's plain-English line makes sense to you, you're ready to open it." },
+  { q: "What does Foundations → Build → Specialize → Master mean?", a: "It's the same ladder for every topic. Foundations: complete beginner. Build: you can make real things. Specialize: you pick a direction and go deep. Master: production-grade, senior-level patterns." },
+  { q: "Why are most courses marked 'coming soon'?", a: "This catalog is the full map of what's planned — JavaScript, React, and PostgreSQL are written end to end today. Everything else is queued, in the order shown by its rung." },
+  { q: "Is this free?", a: "Right now, completely. JavaScript, React, and PostgreSQL are free to read in full, no signup wall partway through. Sign up is optional and just saves your progress." },
+  { q: "Will this stay free as more courses are added?", a: "The plan is to keep a solid free tier permanently. Pricing details for any future paid tier will show up here once they exist — nothing is hidden today because nothing paid exists yet." },
+];
+
+// ─── HOOKS ─────────────────────────────────────────────────────────────────
+
+function useTypedLine(line: string, speed = 30, startDelay = 450): string {
+  const [typed, setTyped] = useState("");
+  useEffect(() => {
+    let i = 0;
+    let interval: ReturnType<typeof setInterval>;
+    const timer = setTimeout(() => {
+      interval = setInterval(() => {
+        i += 1;
+        setTyped(line.slice(0, i));
+        if (i >= line.length) clearInterval(interval);
+      }, speed);
+    }, startDelay);
+    return () => { clearTimeout(timer); clearInterval(interval); };
+  }, [line, speed, startDelay]);
+  return typed;
+}
+
+function useCountUp(target: number, duration = 1200) {
+  const [value, setValue] = useState(0);
+  const ref = useRef<HTMLDivElement | null>(null);
+  const started = useRef(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => entries.forEach((entry) => {
+        if (entry.isIntersecting && !started.current) {
+          started.current = true;
+          const startTime = performance.now();
+          function tick(now: number) {
+            const progress = Math.min((now - startTime) / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            setValue(Math.round(target * eased));
+            if (progress < 1) requestAnimationFrame(tick);
+          }
+          requestAnimationFrame(tick);
+        }
+      }),
+      { threshold: 0.4 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return { value, ref };
+}
+
+// ─── SUB-COMPONENTS ───────────────────────────────────────────────────────────
+
+const NavBar: React.FC = () => (
+  <nav className="hub-nav">
+    <div className="container d-flex align-items-center justify-content-between">
+      <div className="hub-nav__brand">
+        <span className="hub-nav__mark">{"</>"}</span>
+        <span>learning hub</span>
+      </div>
+      <div className="hub-nav__links d-none d-md-flex">
+        <a href="#path">Learning path</a>
+        <a href="#catalog">Catalog</a>
+        <a href="#how-it-works">How it works</a>
+        <a href="#faq">FAQ</a>
+      </div>
+      <div className="hub-nav__auth">
+        <button className="hub-nav__login" type="button">Log in</button>
+        <button className="hub-nav__signup" type="button">Sign up</button>
+      </div>
+    </div>
+  </nav>
+);
+
+const TerminalHero: React.FC<{ totalCourses: number; available: number }> = ({ totalCourses, available }) => {
+  const typed = useTypedLine("learn --path=fullstack --level=pro", 28, 500);
+  const [blink, setBlink] = useState(true);
+  const done = typed.length === "learn --path=fullstack --level=pro".length;
+
+  useEffect(() => {
+    const id = setInterval(() => setBlink((v) => !v), 530);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <header className="hub-hero">
+      <div className="hub-hero__mesh" aria-hidden="true" />
+      <div className="container">
+        <div className="row justify-content-center">
+          <div className="col-12 col-lg-10">
+            <span className="hub-hero__eyebrow">One hub. Every language. Every level.</span>
+
+            <h1 className="hub-hero__title">
+              Explained so a kid gets it.
+              <br />
+              <span className="hub-hero__title-serif">Deep enough a pro keeps it.</span>
+            </h1>
+
+            <p className="hub-hero__sub">
+              {totalCourses}+ languages and tools, mapped onto one simple ladder:
+              Foundations → Build → Specialize → Master. {available} are written
+              end to end today — the rest are queued, in order, below.
+            </p>
+
+            <div className="row mt-5 gx-4 align-items-start">
+              <div className="col-12 col-lg-6 mb-4 mb-lg-0">
+                <div className="hub-terminal">
+                  <div className="hub-terminal__bar">
+                    <span className="hub-dot hub-dot--red" />
+                    <span className="hub-dot hub-dot--yellow" />
+                    <span className="hub-dot hub-dot--green" />
+                    <span className="hub-terminal__title">hub — zsh</span>
+                  </div>
+                  <div className="hub-terminal__body">
+                    <div className="hub-terminal__line">
+                      <span className="hub-prompt">guest@hub</span>
+                      <span className="hub-path">:~$</span> <span className="hub-cmd">{typed}</span>
+                      <span className="hub-cursor" style={{ opacity: blink ? 1 : 0 }}>▍</span>
+                    </div>
+                    {done && (
+                      <div className="hub-terminal__output">
+                        <div className="hub-output-line">✓ {totalCourses} topics catalogued</div>
+                        <div className="hub-output-line">✓ {available} ready to read now</div>
+                        <div className="hub-output-line hub-output-line--muted"># scroll for the full map</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="col-12 col-lg-6">
+                <div className="hub-hero__quote">
+                  <p>
+                    "If a five-year-old and a senior engineer both read the same
+                    paragraph and both walk away understanding it — that's the
+                    only bar this hub has to clear."
+                  </p>
+                  <span className="hub-hero__quote-attr">— the one rule every course is written under</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+};
+
+const StatsStrip: React.FC<{ totalCourses: number; categories: number; chapters: number; hours: number }> = ({
+  totalCourses, categories, chapters, hours,
+}) => {
+  const c1 = useCountUp(totalCourses);
+  const c2 = useCountUp(categories);
+  const c3 = useCountUp(chapters);
+  const c4 = useCountUp(hours);
+
+  const stats: { label: string; data: ReturnType<typeof useCountUp>; suffix?: string }[] = [
+    { label: "topics mapped", data: c1 },
+    { label: "categories", data: c2 },
+    { label: "chapters written", data: c3 },
+    { label: "hours of reading", data: c4, suffix: "h" },
+  ];
+
+  return (
+    <section className="hub-stats">
+      <div className="container">
+        <div className="row g-4">
+          {stats.map((s, i) => (
+            <div className="col-6 col-md-3" key={i} ref={s.data.ref}>
+              <div className="hub-stat">
+                <div className="hub-stat__num">{s.data.value}{s.suffix ?? ""}</div>
+                <div className="hub-stat__label">{s.label}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const LearningLadder: React.FC = () => (
+  <section className="hub-ladder" id="path">
+    <div className="container">
+      <span className="hub-eyebrow">// the learning path</span>
+      <h2 className="hub-section-title">Four rungs. Every topic climbs the same one.</h2>
+      <p className="hub-section-sub">
+        Whatever you pick below — Python or Kubernetes, HTML or System Design —
+        it sits on this same ladder. Know your rung, know what to expect.
+      </p>
+
+      <div className="hub-ladder__rungs mt-5">
+        {RUNGS.map((r, i) => (
+          <div className="hub-rung" key={r.key}>
+            <div className="hub-rung__index">{i + 1}</div>
+            <div className="hub-rung__body">
+              <div className="hub-rung__title">{r.title}</div>
+              <div className="hub-rung__plain">{r.plain}</div>
+            </div>
+            {i < RUNGS.length - 1 && <div className="hub-rung__connector" aria-hidden="true" />}
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
+const HowItWorks: React.FC = () => (
+  <section className="hub-steps" id="how-it-works">
+    <div className="container">
+      <span className="hub-eyebrow">// how it works</span>
+      <h2 className="hub-section-title">Three steps, no fluff</h2>
+      <div className="row g-4 mt-2">
+        {STEPS.map((s) => (
+          <div className="col-12 col-md-4" key={s.num}>
+            <div className="hub-step">
+              <div className="hub-step__num">{s.num}</div>
+              <h3 className="hub-step__title">{s.title}</h3>
+              <p className="hub-step__desc">{s.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
+const RUNG_ORDER: Record<Rung, number> = { Foundations: 0, Build: 1, Specialize: 2, Master: 3 };
+
+const CourseChip: React.FC<{ course: Course; accent: string; accentSoft: string }> = ({ course, accent, accentSoft }) => {
+  const isSoon = course.status === "coming-soon";
+  return (
+    <div
+      className={`hub-chip ${isSoon ? "hub-chip--soon" : ""}`}
+      style={{ "--accent": accent, "--accent-soft": accentSoft } as React.CSSProperties}
+      tabIndex={0}
+      role="button"
+      aria-label={isSoon ? `${course.name}, coming soon` : `Open ${course.name} course`}
+    >
+      <div className="hub-chip__head">
+        <span className="hub-chip__emoji">{course.emoji}</span>
+        <span className="hub-chip__rung">{course.rung}</span>
+      </div>
+      <div className="hub-chip__name">{course.name}</div>
+      <div className="hub-chip__plain">{course.plain}</div>
+
+      <div className="hub-chip__foot">
+        {isSoon ? (
+          <span className="hub-chip__badge">Coming soon</span>
+        ) : (
+          <span className="hub-chip__meta">{course.chapters} ch · {course.hours}h</span>
+        )}
+        {!isSoon && <span className="hub-chip__arrow">→</span>}
+      </div>
+    </div>
+  );
+};
+
+const CategoryRow: React.FC<{ category: Category }> = ({ category }) => {
+  const sorted = [...category.courses].sort((a, b) => RUNG_ORDER[a.rung] - RUNG_ORDER[b.rung]);
+  const availableCount = category.courses.filter((c) => c.status === "available").length;
+
+  return (
+    <div
+      className="hub-category"
+      style={{ "--cat-accent": category.accent, "--cat-accent-soft": category.accentSoft } as React.CSSProperties}
+    >
+      <div className="hub-category__head">
+        <div>
+          <h3 className="hub-category__name">{category.name}</h3>
+          <p className="hub-category__plain">{category.plain}</p>
+        </div>
+        <span className="hub-category__count">
+          {availableCount > 0 ? `${availableCount} ready` : `${category.courses.length} planned`}
+        </span>
+      </div>
+
+      <div className="hub-category__scroll">
+        {sorted.map((course) => (
+          <CourseChip key={course.id} course={course} accent={category.accent} accentSoft={category.accentSoft} />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const Catalog: React.FC<{ categories: Category[] }> = ({ categories }) => (
+  <section className="hub-main" id="catalog">
+    <div className="container">
+      <div className="hub-section-head">
+        <span className="hub-eyebrow">// the full catalog</span>
+        <h2 className="hub-section-title">Pick a category, then a topic</h2>
+        <p className="hub-section-sub">
+          Scroll each row sideways on mobile, or just browse — every card tells
+          you its level and what it actually is before you click anything.
+        </p>
+      </div>
+
+      {categories.map((cat) => (
+        <CategoryRow key={cat.id} category={cat} />
+      ))}
+    </div>
+  </section>
+);
+
+const Principles: React.FC = () => (
+  <section className="hub-principles">
+    <div className="container">
+      <span className="hub-eyebrow">// design principles</span>
+      <h2 className="hub-section-title">What makes these different</h2>
+      <p className="hub-section-sub">
+        Not a claim of quality — a description of the rules every chapter was actually written under.
+      </p>
+      <div className="row g-4 mt-2">
+        {PRINCIPLES.map((p) => (
+          <div className="col-12 col-md-6" key={p.title}>
+            <div className="hub-principle">
+              <div className="hub-principle__icon">{p.icon}</div>
+              <div>
+                <h3 className="hub-principle__title">{p.title}</h3>
+                <p className="hub-principle__desc">{p.desc}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
+const FaqAccordion: React.FC<{ items: FaqItem[] }> = ({ items }) => {
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
+  return (
+    <section className="hub-faq" id="faq">
+      <div className="container">
+        <span className="hub-eyebrow">// faq</span>
+        <h2 className="hub-section-title">Before you start</h2>
+        <div className="hub-faq__list mt-4">
+          {items.map((item, i) => {
+            const isOpen = openIndex === i;
+            return (
+              <div className={`hub-faq__item ${isOpen ? "hub-faq__item--open" : ""}`} key={item.q}>
+                <button
+                  className="hub-faq__question"
+                  type="button"
+                  aria-expanded={isOpen}
+                  onClick={() => setOpenIndex(isOpen ? null : i)}
+                >
+                  <span>{item.q}</span>
+                  <span className="hub-faq__icon">{isOpen ? "−" : "+"}</span>
+                </button>
+                {isOpen && <div className="hub-faq__answer">{item.a}</div>}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const ClosingCta: React.FC = () => (
+  <section className="hub-closing">
+    <div className="container text-center">
+      <h2 className="hub-closing__title">
+        Pick one topic. <span className="hub-closing__accent">Finish it.</span>
+      </h2>
+      <p className="hub-closing__sub">
+        That's the whole strategy. Not twenty tabs open — one course, start to finish.
+      </p>
+      <div className="hub-closing__actions">
+        <button className="hub-closing__cta" type="button">Browse the catalog ↑</button>
+        <button className="hub-closing__cta hub-closing__cta--ghost" type="button">Sign up free</button>
+      </div>
+    </div>
+  </section>
+);
+
+const Footer: React.FC = () => (
+  <footer className="hub-footer">
+    <div className="container">
+      <div className="row gy-4">
+        <div className="col-12 col-md-4">
+          <div className="hub-nav__brand mb-2">
+            <span className="hub-nav__mark">{"</>"}</span>
+            <span>learning hub</span>
+          </div>
+          <p className="hub-footer__desc">
+            One shelf for every language and tool worth learning — explained
+            simply, then completely, on the same four-rung ladder every time.
+          </p>
+        </div>
+        <div className="col-6 col-md-3">
+          <div className="hub-footer__heading">Categories</div>
+          <ul className="hub-footer__list">
+            {CATEGORIES.slice(0, 5).map((c) => <li key={c.id}>{c.name}</li>)}
+          </ul>
+        </div>
+        <div className="col-6 col-md-2">
+          <div className="hub-footer__heading">Page</div>
+          <ul className="hub-footer__list">
+            <li><a href="#path">Learning path</a></li>
+            <li><a href="#catalog">Catalog</a></li>
+            <li><a href="#faq">FAQ</a></li>
+          </ul>
+        </div>
+        <div className="col-6 col-md-3">
+          <div className="hub-footer__heading">Account</div>
+          <ul className="hub-footer__list">
+            <li><a href="#">Log in</a></li>
+            <li><a href="#">Sign up free</a></li>
+          </ul>
+        </div>
+      </div>
+      <div className="hub-footer__bottom">
+        <span>Built one course at a time.</span>
+        <span className="hub-footer__muted">No tracking, no signup wall on free courses.</span>
+      </div>
+    </div>
+  </footer>
+);
+
+// ─── MAIN PAGE ────────────────────────────────────────────────────────────────
+
+const LearningHubHome: React.FC = () => {
+  const allCourses = CATEGORIES.flatMap((c) => c.courses);
+  const available = allCourses.filter((c) => c.status === "available");
+  const totalChapters = available.reduce((sum, c) => sum + c.chapters, 0);
+  const totalHours = available.reduce((sum, c) => sum + c.hours, 0);
+
+  return (
+    <div className="hub-root">
+      <NavBar />
+      <TerminalHero totalCourses={allCourses.length} available={available.length} />
+      <StatsStrip
+        totalCourses={allCourses.length}
+        categories={CATEGORIES.length}
+        chapters={totalChapters}
+        hours={totalHours}
+      />
+      <LearningLadder />
+      <HowItWorks />
+      <Catalog categories={CATEGORIES} />
+      <Principles />
+      <FaqAccordion items={FAQS} />
+      <ClosingCta />
+      <Footer />
+
+      <style>{`
+        :root {
+          --hub-bg: #070809;
+          --hub-bg-soft: #0c0e12;
+          --hub-surface: #111419;
+          --hub-border: #1d212b;
+          --hub-text: #f3f4f7;
+          --hub-muted: #6b7280;
+          --hub-muted-soft: #4b5563;
+        }
+
+        * { box-sizing: border-box; }
+
+        .hub-root {
+          background: var(--hub-bg);
+          color: var(--hub-text);
+          font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+          min-height: 100vh;
+          overflow-x: hidden;
+        }
+
+        a { text-decoration: none; }
+
+        .hub-eyebrow {
+          display: block;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 11px;
+          letter-spacing: 2px;
+          color: #63b3ed;
+          text-transform: uppercase;
+          margin-bottom: 10px;
+        }
+
+        .hub-section-title {
+          font-family: 'Fraunces', serif;
+          font-size: clamp(26px, 4vw, 38px);
+          font-weight: 600;
+          letter-spacing: -0.5px;
+          margin: 0 0 12px;
+        }
+
+        .hub-section-sub {
+          font-size: 14.5px;
+          color: var(--hub-muted);
+          line-height: 1.75;
+          max-width: 600px;
+          margin: 0;
+        }
+
+        .hub-section-head { margin-bottom: 40px; }
+
+        /* ── NAV ── */
+        .hub-nav {
+          padding: 18px 0;
+          border-bottom: 1px solid var(--hub-border);
+          position: sticky;
+          top: 0;
+          z-index: 50;
+          background: rgba(7,8,9,0.88);
+          backdrop-filter: blur(10px);
+        }
+
+        .hub-nav__brand {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-weight: 700;
+          font-size: 15px;
+          letter-spacing: -0.3px;
+        }
+
+        .hub-nav__mark { font-family: 'JetBrains Mono', monospace; color: #63b3ed; font-size: 14px; }
+
+        .hub-nav__links { gap: 26px; }
+        .hub-nav__links a { color: var(--hub-muted); font-size: 13.5px; transition: color 0.2s ease; }
+        .hub-nav__links a:hover { color: var(--hub-text); }
+
+        .hub-nav__auth { display: flex; gap: 10px; align-items: center; }
+
+        .hub-nav__login {
+          background: transparent;
+          border: none;
+          color: var(--hub-muted);
+          font-family: 'Space Grotesk', sans-serif;
+          font-size: 13px;
+          font-weight: 600;
+          padding: 8px 6px;
+          cursor: pointer;
+        }
+        .hub-nav__login:hover { color: var(--hub-text); }
+
+        .hub-nav__signup {
+          background: var(--hub-text);
+          color: var(--hub-bg);
+          border: none;
+          font-family: 'Space Grotesk', sans-serif;
+          font-size: 13px;
+          font-weight: 600;
+          padding: 9px 18px;
+          border-radius: 7px;
+          cursor: pointer;
+        }
+
+        /* ── HERO ── */
+        .hub-hero { position: relative; padding: 80px 0 64px; border-bottom: 1px solid var(--hub-border); overflow: hidden; }
+
+        .hub-hero__mesh {
+          position: absolute;
+          inset: -20% -10% auto -10%;
+          height: 620px;
+          background:
+            radial-gradient(circle at 18% 25%, rgba(245,200,66,0.10) 0%, transparent 45%),
+            radial-gradient(circle at 55% 5%, rgba(99,179,237,0.13) 0%, transparent 50%),
+            radial-gradient(circle at 85% 30%, rgba(34,197,94,0.09) 0%, transparent 45%);
+          pointer-events: none;
+          z-index: 0;
+        }
+
+        .hub-hero .container { position: relative; z-index: 1; }
+
+        .hub-hero__eyebrow {
+          display: inline-block;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 11.5px;
+          letter-spacing: 1.5px;
+          color: var(--hub-muted);
+          border: 1px solid var(--hub-border);
+          border-radius: 20px;
+          padding: 6px 14px;
+          margin-bottom: 26px;
+        }
+
+        .hub-hero__title {
+          font-family: 'Space Grotesk', sans-serif;
+          font-weight: 700;
+          font-size: clamp(32px, 6vw, 60px);
+          line-height: 1.12;
+          letter-spacing: -1.8px;
+          margin: 0 0 26px;
+        }
+
+        .hub-hero__title-serif {
+          font-family: 'Fraunces', serif;
+          font-weight: 500;
+          font-style: italic;
+          color: #cdd3de;
+        }
+
+        .hub-hero__sub {
+          font-size: 16px;
+          color: var(--hub-muted);
+          line-height: 1.8;
+          max-width: 600px;
+          margin: 0;
+        }
+
+        .hub-terminal {
+          background: #0d1117;
+          border: 1px solid var(--hub-border);
+          border-radius: 12px;
+          overflow: hidden;
+          box-shadow: 0 24px 60px -24px rgba(0,0,0,0.7);
+          height: 100%;
+        }
+
+        .hub-terminal__bar { display: flex; align-items: center; gap: 8px; padding: 11px 14px; background: #161b22; border-bottom: 1px solid var(--hub-border); }
+        .hub-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+        .hub-dot--red { background: #ff5f56; }
+        .hub-dot--yellow { background: #ffbd2e; }
+        .hub-dot--green { background: #27c93f; }
+        .hub-terminal__title { margin-left: 8px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--hub-muted); }
+        .hub-terminal__body { padding: 20px 22px 24px; font-family: 'JetBrains Mono', monospace; font-size: 13px; min-height: 120px; }
+        .hub-prompt { color: #4ade80; }
+        .hub-path { color: var(--hub-muted); }
+        .hub-cmd { color: var(--hub-text); }
+        .hub-cursor { color: #63b3ed; }
+        .hub-terminal__output { margin-top: 12px; }
+        .hub-output-line { color: #86efac; font-size: 12px; line-height: 1.9; }
+        .hub-output-line--muted { color: var(--hub-muted); }
+
+        .hub-hero__quote {
+          background: var(--hub-surface);
+          border: 1px solid var(--hub-border);
+          border-left: 3px solid #f5c842;
+          border-radius: 4px 12px 12px 4px;
+          padding: 26px 28px;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+        }
+
+        .hub-hero__quote p { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 500; line-height: 1.55; color: #e5e7eb; margin: 0 0 14px; }
+        .hub-hero__quote-attr { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--hub-muted); }
+
+        /* ── STATS ── */
+        .hub-stats { padding: 44px 0; border-bottom: 1px solid var(--hub-border); background: var(--hub-bg-soft); }
+        .hub-stat { text-align: center; }
+        .hub-stat__num { font-family: 'Fraunces', serif; font-size: clamp(30px, 5vw, 44px); font-weight: 600; color: var(--hub-text); line-height: 1; }
+        .hub-stat__label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--hub-muted); margin-top: 8px; }
+
+        /* ── LEARNING LADDER ── */
+        .hub-ladder { padding: 80px 0; border-bottom: 1px solid var(--hub-border); }
+
+        .hub-ladder__rungs {
+          display: flex;
+          flex-direction: column;
+          gap: 0;
+        }
+
+        .hub-rung {
+          display: flex;
+          gap: 20px;
+          align-items: flex-start;
+          position: relative;
+          padding-bottom: 36px;
+        }
+
+        .hub-rung__index {
+          width: 40px;
+          height: 40px;
+          flex-shrink: 0;
+          border-radius: 50%;
+          background: var(--hub-surface);
+          border: 1px solid var(--hub-border);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 14px;
+          color: #63b3ed;
+          z-index: 1;
+        }
+
+        .hub-rung__connector {
+          position: absolute;
+          left: 19px;
+          top: 40px;
+          bottom: 0;
+          width: 1.5px;
+          background: var(--hub-border);
+        }
+
+        .hub-rung__title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+        .hub-rung__plain { font-size: 13.5px; color: var(--hub-muted); line-height: 1.7; max-width: 460px; }
+
+        /* ── HOW IT WORKS ── */
+        .hub-steps { padding: 80px 0; border-bottom: 1px solid var(--hub-border); background: var(--hub-bg-soft); }
+        .hub-step { height: 100%; padding: 26px; border: 1px solid var(--hub-border); border-radius: 12px; background: var(--hub-surface); }
+        .hub-step__num { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #63b3ed; margin-bottom: 14px; }
+        .hub-step__title { font-size: 17px; font-weight: 700; margin: 0 0 8px; }
+        .hub-step__desc { font-size: 13.5px; color: var(--hub-muted); line-height: 1.75; margin: 0; }
+
+        /* ── CATALOG ── */
+        .hub-main { padding: 84px 0 24px; }
+
+        .hub-category { margin-bottom: 52px; }
+
+        .hub-category__head {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-end;
+          flex-wrap: wrap;
+          gap: 10px;
+          margin-bottom: 16px;
+          padding-left: 14px;
+          border-left: 3px solid var(--cat-accent);
+        }
+
+        .hub-category__name { font-size: 19px; font-weight: 700; margin: 0 0 4px; letter-spacing: -0.3px; }
+        .hub-category__plain { font-size: 12.5px; color: var(--hub-muted); margin: 0; }
+
+        .hub-category__count {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 11px;
+          color: var(--cat-accent);
+          background: var(--cat-accent-soft);
+          padding: 4px 10px;
+          border-radius: 12px;
+          white-space: nowrap;
+        }
+
+        .hub-category__scroll {
+          display: flex;
+          gap: 14px;
+          overflow-x: auto;
+          padding: 4px 2px 14px;
+          scroll-snap-type: x proximity;
+        }
+
+        .hub-category__scroll::-webkit-scrollbar { height: 5px; }
+
+        .hub-chip {
+          scroll-snap-align: start;
+          flex: 0 0 232px;
+          background: var(--hub-surface);
+          border: 1px solid var(--hub-border);
+          border-top: 3px solid var(--accent);
+          border-radius: 12px;
+          padding: 18px;
+          display: flex;
+          flex-direction: column;
+          cursor: pointer;
+          transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        .hub-chip:hover, .hub-chip:focus-visible {
+          transform: translateY(-3px);
+          border-color: var(--accent);
+          box-shadow: 0 14px 32px -16px var(--accent-soft);
+          outline: none;
+        }
+
+        .hub-chip--soon { opacity: 0.78; }
+
+        .hub-chip__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .hub-chip__emoji { font-size: 24px; line-height: 1; }
+        .hub-chip__rung {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 9px;
+          letter-spacing: 0.5px;
+          text-transform: uppercase;
+          color: var(--hub-muted);
+        }
+
+        .hub-chip__name { font-size: 15.5px; font-weight: 700; margin-bottom: 6px; }
+        .hub-chip__plain { font-size: 12px; color: var(--hub-muted); line-height: 1.6; margin-bottom: 16px; flex-grow: 1; }
+
+        .hub-chip__foot { display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
+
+        .hub-chip__badge {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 9.5px;
+          letter-spacing: 0.5px;
+          text-transform: uppercase;
+          color: var(--hub-muted);
+          border: 1px solid var(--hub-border);
+          border-radius: 10px;
+          padding: 3px 8px;
+        }
+
+        .hub-chip__meta {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 10.5px;
+          color: var(--accent);
+        }
+
+        .hub-chip__arrow { color: var(--accent); font-size: 14px; }
+
+        /* ── PRINCIPLES ── */
+        .hub-principles { padding: 84px 0; border-top: 1px solid var(--hub-border); border-bottom: 1px solid var(--hub-border); background: var(--hub-bg-soft); }
+        .hub-principle { display: flex; gap: 18px; align-items: flex-start; height: 100%; }
+        .hub-principle__icon { font-size: 24px; width: 50px; height: 50px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--hub-surface); border: 1px solid var(--hub-border); border-radius: 12px; }
+        .hub-principle__title { font-size: 16px; font-weight: 700; margin: 0 0 6px; }
+        .hub-principle__desc { font-size: 13.5px; color: var(--hub-muted); line-height: 1.75; margin: 0; }
+
+        /* ── FAQ ── */
+        .hub-faq { padding: 84px 0; }
+        .hub-faq__list { max-width: 740px; }
+        .hub-faq__item { border-bottom: 1px solid var(--hub-border); }
+        .hub-faq__question {
+          width: 100%;
+          background: transparent;
+          border: none;
+          color: var(--hub-text);
+          text-align: left;
+          padding: 20px 0;
+          font-size: 15px;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          cursor: pointer;
+        }
+        .hub-faq__item--open .hub-faq__question { color: #63b3ed; }
+        .hub-faq__icon { font-family: 'JetBrains Mono', monospace; font-size: 18px; color: var(--hub-muted); flex-shrink: 0; margin-left: 16px; }
+        .hub-faq__answer { font-size: 13.5px; color: var(--hub-muted); line-height: 1.8; padding: 0 0 22px; max-width: 620px; }
+
+        /* ── CLOSING ── */
+        .hub-closing {
+          padding: 92px 0;
+          border-top: 1px solid var(--hub-border);
+          text-align: center;
+          background: radial-gradient(ellipse 50% 60% at 50% 100%, rgba(99,179,237,0.08) 0%, transparent 70%);
+        }
+        .hub-closing__title { font-family: 'Fraunces', serif; font-weight: 600; font-size: clamp(26px, 5vw, 42px); margin: 0 0 16px; letter-spacing: -0.5px; }
+        .hub-closing__accent { color: #4ade80; font-style: italic; }
+        .hub-closing__sub { font-size: 14.5px; color: var(--hub-muted); max-width: 420px; margin: 0 auto 30px; line-height: 1.7; }
+        .hub-closing__actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+        .hub-closing__cta {
+          background: var(--hub-text);
+          color: var(--hub-bg);
+          border: none;
+          font-family: 'Space Grotesk', sans-serif;
+          font-size: 14px;
+          font-weight: 700;
+          padding: 13px 26px;
+          border-radius: 8px;
+          cursor: pointer;
+        }
+
+        .hub-closing__cta--ghost {
+          background: transparent;
+          color: var(--hub-text);
+          border: 1px solid var(--hub-border);
+        }
+
+        /* ── FOOTER ── */
+        .hub-footer { border-top: 1px solid var(--hub-border); padding: 52px 0 26px; }
+        .hub-footer__desc { font-size: 13px; color: var(--hub-muted); line-height: 1.7; max-width: 320px; }
+        .hub-footer__heading { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--hub-muted-soft); margin-bottom: 14px; }
+        .hub-footer__list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+        .hub-footer__list a { color: var(--hub-muted); font-size: 13.5px; transition: color 0.2s ease; }
+        .hub-footer__list a:hover { color: var(--hub-text); }
+        .hub-footer__list li { font-size: 13.5px; color: var(--hub-muted); }
+        .hub-footer__muted { color: var(--hub-muted-soft) !important; }
+
+        .hub-footer__bottom {
+          margin-top: 40px;
+          padding-top: 22px;
+          border-top: 1px solid var(--hub-border);
+          display: flex;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          gap: 8px;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 11.5px;
+          color: var(--hub-muted);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .hub-chip { transition: none; }
+        }
+
+        @media (max-width: 575px) {
+          .hub-hero { padding: 56px 0 44px; }
+          .hub-main, .hub-ladder, .hub-steps, .hub-principles, .hub-faq, .hub-closing { padding: 52px 0; }
+          .hub-chip { flex: 0 0 200px; }
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default LearningHubHome;
+
+/**
+ * Font tags for index.html <head> — add alongside the Bootstrap link:
+ *
+ * <link
+ *   href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;1,500&family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+ *   rel="stylesheet"
+ * />
+ */

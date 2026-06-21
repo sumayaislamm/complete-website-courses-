@@ -8,8 +8,10 @@ function App() {
   return (
     <>
       <FirstNavbar></FirstNavbar>
-      <SecondNavbar></SecondNavbar>
-      <Home></Home>
+      {/* <SecondNavbar></SecondNavbar>
+      <Home></Home> */}
+
+      
     </>
 
   )
