@@ -1,36 +1,42 @@
+import { Link } from "react-router-dom";
 
 
 const SecondNavbar = () => {
     return (
-        <nav className="navbar navbar-expand-lg"
-            style={{
-                // marginTop: "70px",
-                background: "linear-gradient(90deg, #4f46e5, #06b6d4)",
+        <nav>
+            <div className="navbar text-base-content min-h-0 h-10 py-0 shadow-sm" style={{
+                 background: "linear-gradient(90deg, #15803d, #10b981)"
+                // background: "linear-gradient(90deg, #16a34a, #34d399)"
+                // background: "linear-gradient(90deg, #22c55e, #10b981)"
             }}>
-            <div className="container-fluid">
-
-                <div className="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li className="nav-item">
-                            <a className="nav-link active" aria-current="page" href="#">Home</a>
-                        </li>
-                        <li className="nav-item">
-                            <a className="nav-link" href="#">Learning Path</a>
-                        </li>
-                        <li className="nav-item">
-                            <a className="nav-link" href="#">Catalog</a>
-                        </li>
-                        <li className="nav-item">
-                            <a className="nav-link" href="#">How it works</a>
-                        </li>
-                        <li className="nav-item">
-                            <a className="nav-link" href="#">FAQ</a>
-                        </li>
+                <div className="navbar-start">
+                    <div className="dropdown">
+                        <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h8m-8 6h16" /> </svg>
+                        </div>
+                        <ul
+                            tabIndex={-1}
+                            className="menu menu-sm dropdown-content bg-base-content rounded-box z-1 mt-3 w-52 p-2 shadow">
+                            <li><Link className="px-2 py-1 hover:bg-base-300 transition-all" to="#learning-path">Learning path</Link></li>
+                            <li><Link className="px-2 py-1 hover:bg-base-300 transition-all" to="#how-it-works">How it works</Link></li>
+                            <li><Link className="px-2 py-1 hover:bg-base-300 transition-all" to="#catalog">Catalog </Link></li>
+                            <li><Link className="px-2 py-1 hover:bg-base-300 transition-all" to="#contact">Contact us</Link></li>
+                            <li><Link className="px-2 py-1 hover:bg-base-300 transition-all" to="#faq">FAQ</Link></li>
+                        </ul>
+                    </div>
+                    <Link to="/" className="link link-sm font-bold no-underline text-xl">learning hub</Link>
+                </div>
+                <div className="navbar-center hidden lg:flex">
+                    <ul className=" flex gap-4 px-1 ">
+                        <li className="nav-item"><Link className="px-2 py-1 hover:bg-base-300 transition-all" to="#learning-path">Learning path</Link></li>
+                        <li className="nav-item"><Link className="px-2 py-1 hover:bg-base-300 transition-all" to="#how-it-works">How it works</Link></li>
+                        <li className="nav-item"><Link className="px-2 py-1 hover:bg-base-300 transition-all" to="#catalog">Catalog </Link></li>
+                        <li className="nav-item"><Link className="px-2 py-1 hover:bg-base-300 transition-all" to="#contact">Contact us</Link></li>
+                        <li className="nav-item"><Link className="px-2 py-1 hover:bg-base-300 transition-all" to="#faq">FAQ</Link></li>
                     </ul>
-                    <form className="d-flex" role="search">
-                        {/* <input className="form-control me-2" type="search" placeholder="Search" aria-label="Search" /> */}
-                        <button className="btn btn-light" type="button">SignUp / Login</button>
-                    </form>
+                </div>
+                <div className="navbar-end">
+                    <a className="btn btn-sm">Login / SignUp</a>
                 </div>
             </div>
         </nav>

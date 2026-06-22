@@ -1,6 +1,8 @@
 :root {
-    --bg: #111827;
-    --card: #1f2937;
+    /* --bg: #111827; */
+    --bg: #050505;
+    --card: #0d180f;
+    /* --card: #1f2937; */
     --text: #e5e7eb;
     --heading: #7dd3fc;
     --code: #c084fc;
