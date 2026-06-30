@@ -71,14 +71,14 @@ const Counting = () => {
   return (
     <section
       ref={ref}
-      className="border-y border-base-content bg-base-content mx-10"
+      className="border-y border-accent-content bg-base-content my-4 "
     >
       <div className="">
         <div className="my-5">
           {stats.map((s, i) => (
             <div
               key={i}
-              className="text-center rounded-xl p-6 bg-base-content shadow-sm"
+              className="text-center rounded-xl p-2 bg-base-content shadow-sm"
             >
               <div className="font-serif text-[clamp(30px,5vw,44px)] font-semibold leading-none">
                 <Counter

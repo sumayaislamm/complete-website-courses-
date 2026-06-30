@@ -8,19 +8,19 @@ const Banner = () => {
 
     return (
         <div className="mt-5">
-            <div className="mockup-browser bg-base-content w-[97%] mx-auto border border-base-content pt-3">
+            <div className="mockup-browser pointer-events-none bg-[image:var(--bg-glow)] w-[97%] mx-auto border border-base-content py-3">
 
-                <div className="grid text-sm ml-10 ">
+                <div className="grid text-sm ml-10  ">
                     <div
-                        className="inline-block font-mono text-[11.5px] tracking-[1.5px] text-(--hub-muted) border border-(--hub-border) rounded-[20px] px-3.5 py-1.5 mb-6.5 w-60">
+                        className="inline-block font-mono text-[11.5px] tracking-[1.5px] bg-[var(--muted)] text-[var(--text)] border border-[var(--border)] rounded-[20px] pl-3.5 py-1.5 mb-6.5 w-60">
                         <span>
                             One hub. Every
 
                             <span className="text-rotate ml-2">
                                 <span>
                                     <span className="bg-teal-400 text-teal-800 px-2 rounded-full ">language.</span>
-                                    <span className="bg-red-400 text-red-800 px-2 rounded-full">level.</span>
-                                    <span className="bg-blue-400 text-blue-800 px-2  rounded-full">learner.</span>
+                                    <span className="bg-green-400 text-green-800 px-2 rounded-full">level.</span>
+                                    <span className="bg-blue-400 text-blue-800 px-2  rounded-full">Challenge.</span>
                                 </span>
                             </span>
                         </span>
@@ -28,7 +28,7 @@ const Banner = () => {
 
 
                 </div>
-                <h1 className="font-sans font-bold text-[clamp(32px,6vw,60px)] leading-[1.12] tracking-[-1.8px] mb-[26px] mx-10">
+                <h1 className="font-sans font-bold text-[clamp(32px,6vw,60px)] leading-[1.12] tracking-[-1.8px] mb-6.5 mx-10">
                     Explained so a kid gets it.
                     <br />
                     <span className="font-serif font-medium italic text-slate-300">
