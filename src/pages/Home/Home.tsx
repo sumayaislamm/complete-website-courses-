@@ -1,5 +1,6 @@
 import Banner from "./Banner/Banner.js";
 import Counting from "./Counting/Counting.js";
+import HowItWorks from "./HowItWorks/HowItWorks.js";
 import Ladder from "./Ladder/Ladder.js";
 
 
@@ -10,6 +11,7 @@ const Home = () => {
         <Banner></Banner>
         <Counting></Counting>
         <Ladder></Ladder>
+        <HowItWorks></HowItWorks>
        </>
     );
 };
