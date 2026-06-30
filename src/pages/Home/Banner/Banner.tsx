@@ -7,8 +7,8 @@ const Banner = () => {
     const [done, setDone] = useState(false);
 
     return (
-        <div className="mt-5">
-            <div className="mockup-browser pointer-events-none bg-[image:var(--bg-glow)] w-[97%] mx-auto border border-base-content py-3">
+        <div className="">
+            <div className="mockup-browser pointer-events-none bg-[image:var(--bg-glow)]  border border-base-content py-3">
 
                 <div className="grid text-sm ml-10  ">
                     <div

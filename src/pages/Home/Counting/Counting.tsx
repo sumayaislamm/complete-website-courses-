@@ -71,7 +71,7 @@ const Counting = () => {
   return (
     <section
       ref={ref}
-      className="border-y border-accent-content bg-base-content my-4 "
+      className="border-y border-accent-content bg-base-content "
     >
       <div className="">
         <div className="my-5">
