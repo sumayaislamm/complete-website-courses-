@@ -1,13 +1,35 @@
 :root {
-    --bg: #111827;
-    --card: #1f2937;
-    --text: #e5e7eb;
+    /* --bg: #111827; */
+    --bg: #070809;
+    --bg-soft: #0c0e12;
+    --card: #0d180f;
+    --text: #f3f4f7;
     --heading: #7dd3fc;
     --code: #c084fc;
     --success: #34d399;
     --warning: #fbbf24;
     --error: #f87171;
     --link: #38bdf8;
+    --surface: #111419;
+    --border: #1d212b;
+    --muted: #6b7280;
+    --muted-soft: #4b5563;
+     --bg-glow:
+    radial-gradient(
+      circle at 18% 25%,
+      rgba(245, 200, 66, 0.10) 0%,
+      transparent 45%
+    ),
+    radial-gradient(
+      circle at 55% 5%,
+      rgba(99, 179, 237, 0.13) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 85% 30%,
+      rgba(34, 197, 94, 0.09) 0%,
+      transparent 45%
+    );
 }
 
-/* className="bg-card */
+/* classNameName="bg-card */
