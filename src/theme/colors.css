@@ -10,6 +10,13 @@
     --warning: #fbbf24;
     --error: #f87171;
     --link: #38bdf8;
+    --hub-bg: #070809;
+    --hub-bg-soft: #0c0e12;
+    --hub-surface: #111419;
+    --hub-border: #1d212b;
+    --hub-text: #f3f4f7;
+    --hub-muted: #6b7280;
+    --hub-muted-soft: #4b5563;
 }
 
 /* classNameName="bg-card */

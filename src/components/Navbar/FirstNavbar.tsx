@@ -61,7 +61,7 @@ const FirstNavbar = () => {
 
                     {/* Search Part  */}
 
-                    <div className="join  ">
+                    {/* <div className="join  ">
                         <div>
                             <input className="input border border-base-content join-item bg-base-content text-base-300" placeholder="Search" />
                         </div>
@@ -78,7 +78,7 @@ const FirstNavbar = () => {
                         <div>
                             <button className="link link-hover join-item bg-base-content text-base-300 p-2">Search</button>
                         </div>
-                    </div>
+                    </div> */}
 
                     {/* Notification Part */}
 

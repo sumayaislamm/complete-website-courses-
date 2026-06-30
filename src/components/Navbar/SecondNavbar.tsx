@@ -5,9 +5,11 @@ const SecondNavbar = () => {
     return (
         <nav>
             <div className="navbar text-base-content min-h-0 h-10 py-0 shadow-sm" style={{
-                 background: "linear-gradient(90deg, #15803d, #10b981)"
+                //  background: "linear-gradient(90deg, #15803d, #10b981)"
                 // background: "linear-gradient(90deg, #16a34a, #34d399)"
                 // background: "linear-gradient(90deg, #22c55e, #10b981)"
+                // background: "#4F46E5"
+                background: "#06B6D4"
             }}>
                 <div className="navbar-start">
                     <div className="dropdown">
@@ -24,7 +26,7 @@ const SecondNavbar = () => {
                             <li><Link className="px-2 py-1 hover:bg-base-300 transition-all" to="#faq">FAQ</Link></li>
                         </ul>
                     </div>
-                    <Link to="/" className="link link-sm font-bold no-underline text-xl">learning hub</Link>
+                    <Link to="/" className="link link-sm font-bold no-underline text-xl">Learning hub</Link>
                 </div>
                 <div className="navbar-center hidden lg:flex">
                     <ul className=" flex gap-4 px-1 ">
